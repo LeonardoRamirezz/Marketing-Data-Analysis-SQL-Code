@@ -31,4 +31,4 @@ FROM
 WHERE 
   LEFT (OrderDateKey, 4) >= YEAR(GETDATE()) -2 --Bring rows 2years behind to budget this year
   ORDER BY
-	OrderDateKey ASC
+	OrderDateKey ASC --Order records
