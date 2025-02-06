@@ -1,39 +1,23 @@
--- Select Important Columns DimCustomer table AS c
--- Left Join with dbo.DimGeography AS g
+--Gather customer data and join with DimGeography
 SELECT 
-  c.customerkey AS CustomerKey, 
-  --,[GeographyKey]
-  --,[CustomerAlternateKey]
-  --,[Title]
-  c.firstname AS [First Name], 
-  --,[MiddleName]
-  c.lastname AS [Last Name], 
-  c.firstname + ' ' + lastname AS [Full Name], -- Combined First and Last Name
-  --,[NameStyle]
-  --,[BirthDate]
-  --,[MaritalStatus]
-  --,[Suffix]
-  CASE c.gender WHEN 'M' THEN 'Male' WHEN 'F' THEN 'Female' END AS Gender, --Make gender column more readable for the report
-  --,[EmailAddress]
-  --,[YearlyIncome] --MAYBE I SHOULD SELECT THIS <---- !!!!!!!!!
-  --,[TotalChildren]
-  --,[NumberChildrenAtHome]
-  --,[EnglishEducation]
-  --,[SpanishEducation]
-  --,[FrenchEducation]
-  --,[EnglishOccupation]
-  --,[SpanishOccupation]
-  --,[FrenchOccupation]
-  --,[HouseOwnerFlag]
-  --,[NumberCarsOwned]
-  --,[AddressLine1]
-  --,[AddressLine2]
-  --,[Phone]
-  c.datefirstpurchase AS DateFirstPurchase, 
-  --,[CommuteDistance]
-  g.city AS [Customer City] -- Joined in Customer City from Geography Table
-FROM 
-  [AdventureWorksDW2019].[dbo].[DimCustomer] as c
-  LEFT JOIN dbo.dimgeography AS g ON g.geographykey = c.geographykey --To get customer City from dbo.DimGeography
-ORDER BY 
-  CustomerKey ASC -- Ordered List by CustomerKey
+	dc.CustomerKey,
+	dc.GeographyKey,
+	dg.City AS CustomerCity, --From DimGeography
+	dg.EnglishCountryRegionName AS CustomerCountry, --From DimGeography
+	dc.firstname + ' ' + dc.LastName AS FullName,
+	dc.BirthDate,
+	CASE dc.MaritalStatus
+		WHEN 'M' THEN 'Married'
+		WHEN 'S' THEN 'Single'
+		END AS MaritalStatus, --This will make values easier to read in the report
+	COALESCE (dc.EmailAddress,dc.Phone) AS Contact,--This will get Phone number if email is not avariable
+	CASE dc.Gender 
+		WHEN 'M' THEN 'Male'
+		WHEN 'F' THEN 'Female'
+		END AS Gender,--This will make values easier to read in the report
+	YearlyIncome,
+	TotalChildren,
+	EnglishEducation
+FROM dbo.DimCustomer AS dc
+LEFT JOIN dbo.DimGeography AS dg
+	ON dg.GeographyKey = dc.GeographyKey; --To get customer city and country
